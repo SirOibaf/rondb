@@ -20,6 +20,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	og_log "log"
 	"os"
 	"os/signal"
 	"runtime"
@@ -30,6 +31,9 @@ import (
 	"hopsworks.ai/rdrs/internal/log"
 	"hopsworks.ai/rdrs/internal/metrics"
 	"hopsworks.ai/rdrs/internal/security/apikey/hopsworkscache"
+
+	"net/http"
+	_ "net/http/pprof"
 
 	"hopsworks.ai/rdrs/internal/servers"
 	"hopsworks.ai/rdrs/version"
@@ -56,6 +60,10 @@ func main() {
 	log.Infof("Starting Version : %s, Git Branch: %s (%s). Built on %s at %s",
 		version.VERSION, version.BRANCH, version.GITCOMMIT, version.BUILDTIME, version.HOSTNAME)
 	log.Infof("Starting API Version : %s", version.API_VERSION)
+
+	go func() {
+		og_log.Println(http.ListenAndServe(":8080", nil))
+	}()
 
 	runtime.GOMAXPROCS(conf.Internal.GOMAXPROCS)
 
